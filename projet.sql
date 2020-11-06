@@ -5,10 +5,9 @@ CREATE TABLE projet.formations (
 	nom VARCHAR(100) NOT NULL CHECK (nom<>''),
 	prenom VARCHAR(100) NOT NULL CHECK (prenom<>'')
 );
-CREATE TABLE projet.etudiants (
-	id_etudiant SERIAL PRIMARY KEY,
-	nom VARCHAR(50) NOT NULL CHECK (nom<>''),
-	prenom VARCHAR(50) NOT NULL CHECK (prenom<>''),
-	mot_de_passe VARCHAR(50) NOT NULL CHECK (mot_de_passe<>''),
-	code_bloc VARCHAR(10) REFERENCES projet.blocs (id_bloc) NOT NULL
+CREATE TABLE projet.blocs (
+	id_bloc SERIAL PRIMARY KEY,
+	code_bloc VARCHAR(10) NOT NULL CHECK (code_bloc <> ''),
+	nb_examens_pas_complet INTEGER NOT NULL CHECK (nb_examens_pas_complet>0),
+	id_formation INTEGER REFERENCES projet.formations (id_formations) NOT NULL
 );
