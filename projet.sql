@@ -16,5 +16,14 @@ CREATE TABLE projet.etudiants (
 	nom VARCHAR(50) NOT NULL CHECK (nom<>''),
 	prenom VARCHAR(50) NOT NULL CHECK (prenom<>''),
 	mot_de_passe VARCHAR(50) NOT NULL CHECK (mot_de_passe<>''),
-	code_bloc VARCHAR(10) REFERENCES projet.blocs (id_bloc) NOT NULL
+	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
+CREATE TABLE projet.examens (
+	code_examen CHARACTER(6) PRIMARY KEY CHECK (code_examen SIMILAR TO 'IPL[0-9][0-9][0-9]'),
+	nom VARCHAR(50) NOT NULL CHECK (nom<>''),
+	duree INTEGER NOT NULL CHECK (duree > 0),
+	sur_machine BOOLEAN NOT NULL,
+	heure_debut TIMESTAMP,
+	complet BOOLEAN NOT NULL,
+	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
+)
