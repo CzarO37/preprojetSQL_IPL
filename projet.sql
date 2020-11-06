@@ -29,6 +29,10 @@ CREATE TABLE projet.examens (
 );
 CREATE TABLE projet.inscriptions_examen(
 	id_etudiant INTEGER REFERENCES projet.etudiants (id_etudiant) NOT NULL,
-	id_examen CHARACTER(6) NOT NULL REFERENCES projet.examens (code_examen) NOT NULL,
+	code_examen CHARACTER(6) REFERENCES projet.examens (code_examen) NOT NULL,
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
+CREATE TABLE projet.attribution_locaux(
+	code_local INTEGER REFERENCES projet.locaux (id_local) NOT NULL,
+	code_examen CHARACTER(6) REFERENCES projet.examens (code_examen) NOT NULL
+)
