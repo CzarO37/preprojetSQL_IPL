@@ -32,3 +32,9 @@ CREATE TABLE projet.inscriptions_examen(
 	id_examen CHARACTER(6) NOT NULL REFERENCES projet.examens (code_examen) NOT NULL,
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
+CREATE TABLE projet.locaux (
+	id_local SERIAL PRIMARY KEY,
+	nom_local VARCHAR(4) NOT NULL UNIQUE,
+	nombre_places INTEGER NOT NULL CHECK (nombre_places>0),
+	machines_disponibles BOOLEAN NOT NULL
+)
