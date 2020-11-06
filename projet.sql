@@ -16,7 +16,7 @@ CREATE TABLE projet.etudiants (
 	nom VARCHAR(50) NOT NULL CHECK (nom<>''),
 	prenom VARCHAR(50) NOT NULL CHECK (prenom<>''),
 	mot_de_passe VARCHAR(50) NOT NULL CHECK (mot_de_passe<>''),
-	code_bloc VARCHAR(10) REFERENCES projet.blocs (id_bloc) NOT NULL
+	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
 CREATE TABLE projet.examens (
 	code_examen CHARACTER(6) PRIMARY KEY CHECK (code_examen SIMILAR TO 'IPL[0-9][0-9][0-9]'),
@@ -28,9 +28,7 @@ CREATE TABLE projet.examens (
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
 CREATE TABLE projet.inscriptions_examen(
-	id_etudiant INTEGER REFERENCES projet.etudiants (id_etudiant) NOT NULL
-	id_examen INTEGER NOT NULL projet.examens (code_examens) NOT NULL	
+	id_etudiant INTEGER REFERENCES projet.etudiants (id_etudiant) NOT NULL,
+	id_examen CHARACTER(6) NOT NULL REFERENCES projet.examens (code_examen) NOT NULL,
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
-
-
