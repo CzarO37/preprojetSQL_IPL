@@ -18,3 +18,7 @@ CREATE TABLE projet.etudiants (
 	mot_de_passe VARCHAR(50) NOT NULL CHECK (mot_de_passe<>''),
 	code_bloc VARCHAR(10) REFERENCES projet.blocs (id_bloc) NOT NULL
 );
+CREATE TABLE projet.inscriptions_examen(
+	id_etudiant INTEGER REFERENCES projet.etudiants (id_etudiant) NOT NULL
+	id_examen INTEGER NOT NULL projet.examens (code_examens) NOT NULL	
+);
