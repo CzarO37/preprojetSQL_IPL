@@ -37,4 +37,8 @@ CREATE TABLE projet.locaux (
 	nom_local VARCHAR(4) NOT NULL UNIQUE,
 	nombre_places INTEGER NOT NULL CHECK (nombre_places>0),
 	machines_disponibles BOOLEAN NOT NULL
-)
+);
+CREATE TABLE projet.attribution_locaux(
+    code_local INTEGER REFERENCES projet.locaux (id_local) NOT NULL,
+    code_examen CHARACTER(6) REFERENCES projet.examens (code_examen) NOT NULL
+);
