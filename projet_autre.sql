@@ -86,14 +86,14 @@ BEGIN
 	--Recherche id de bloc
 	SELECT projet.rechercheIdBloc(cd_bloc)INTO variable_id_bloc;
 
-	IF NOT EXISTS (SELECT * FROM projet.examens ex WHERE ex.code_examen = code_exam)THEN
+	--IF NOT EXISTS (SELECT * FROM projet.examens ex WHERE ex.code_examen = code_exam)THEN
 		INSERT INTO projet.examens VALUES(code_exam, nom, duree, sur_machine, 
 									NULL, false, variable_id_bloc);
 		RETURN TRUE;
-	ELSE
-		RAISE 'Examen % existe déjà dans la base de données',code_exam;
-	END IF;
-	RETURN FALSE;
+	--ELSE
+	--	RAISE 'Examen % existe déjà dans la base de données',code_exam;
+	--END IF;
+	--RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
 
