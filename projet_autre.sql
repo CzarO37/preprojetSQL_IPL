@@ -8,8 +8,7 @@ CREATE SCHEMA projet;
 CREATE TABLE projet.formations (
 	id_formations SERIAL PRIMARY KEY,
 	nom VARCHAR(100) NOT NULL CHECK (nom<>''),
-	ecole VARCHAR(100) NOT NULL 
-		CONSTRAINT ecole_chaine_vide CHECK (ecole<>'')
+	ecole VARCHAR(100) NOT NULL CHECK (ecole<>'')
 );
 CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
@@ -57,7 +56,7 @@ CREATE TABLE projet.locaux (
 --Changement fait le 19/11 :
 -- Rajout de la cle primaire
 
-CREATE TABLE projet.attribution_locaux(
+CREATE TABLE projet.attributions_locaux(
     id_local INTEGER REFERENCES projet.locaux (id_local) NOT NULL,
     code_examen CHARACTER(6) REFERENCES projet.examens (code_examen) NOT NULL,
 	PRIMARY KEY (id_local,code_examen)
@@ -103,33 +102,29 @@ DECLARE
 	id_bloc_ex INTEGER;
 	exam_date date;
 BEGIN
-	--VERIFICAION DES VALEURS DES PARAMÈTRES
-	--Verification si l'examen existe deja car UPDATE ne le fait pas
-	IF NOT EXISTS (SELECT * FROM projet.examens ex WHERE ex.code_examen = code_exam) THEN RAISE 'Examen % existe pas', code_exam; END IF;
+    SELECT projet.idBlocExamen(code_exam) INTO id_bloc_ex;
+	
 	--Est ce qu'on verifie la dateEtHeure ???? Son format ?(a voir avec le coequipier)
 	
 	--DIFFÉRENTES VÉRIFICATIONS POUR VALIDATION DE L'HEURE POUR L'EXAMEN
-	--Vérifier si au moins 1 étudiant est inscrit pour l'examen (utilisation de fonction nombre etudiant pour examen)(pEUTETRE A MODIFIER IF EXIST ????)
-	IF (SELECT projet.nombreInscrits (code_exam)=0)	THEN RAISE 'Aucun étudiant est inscrit a cet examen'; END IF;
+	--Vérifier si y a des inscription pour examen
+	IF NOT EXISTS(SELECT * FROM projet.inscriptions_examen inex WHERE inex.code_examen = code_exam)	THEN RAISE 'Aucun étudiant est inscrit a cet examen'; END IF;
 	
-	--Verifier si y a pas d'examen a ce jour pour ce bloc deja (fonction)
+	--Verifier si y a pas d'examen a ce jour pour ce bloc deja (fonction) !!!!! Exclure l'examen courant si changement de l'heure !!!
 	SELECT projet.idBlocExamen(code_exam) INTO id_bloc_ex;
-	exam_date = CAST (dateEtHeure AS DATE);
 	
-	--+++++++++++++++++++++++++++++++
-	------ PROBLEME A RESSOUDRE -----
-	--IF(SELECT projet.examenMemeDateBlocExistant(exam_date,id_bloc_ex)) THEN RAISE 'Il existe déjà un examen pour ce bloc a ce jour !';END IF;
-	--++++++++++++++++++++++++++++++++
+    exam_date = CAST(dateEtHeure AS DATE);
 	
+    --OK
+	IF(SELECT projet.examenMemeDateBlocExistant(exam_date,id_bloc_ex)) THEN RAISE 'Il existe déjà un examen pour ce bloc a ce jour !';END IF;
 	
-	
-	--LE CAS SI ON VEUT CHANGER L'HEURE EXAMEN ?????
+	--LE CAS SI ON VEUT CHANGER L'HEURE EXAMEN ????? OK 
 	IF (SELECT ex.date_heure_debut FROM projet.examens ex WHERE ex.code_examen = code_exam)IS NOT NULL THEN 
 		IF EXISTS (SELECT * FROM projet.attributions_locaux atr WHERE atr.code_examen = code_exam) THEN RAISE 'On peut pas changer de date pour examen ou le local est deja reservé';
 		END IF;
 	END IF;
 	--gerer les conflits horaire ????(TODO)
-	UPDATE projet.examens SET date_heure_debut = dateEtHeure WHERE code_examen = code_exam;
+	UPDATE projet.examens SET date_heure_debut=dateEtHeure WHERE code_examen = code_exam;
 	RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
@@ -189,6 +184,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- NOMBRE D'ÉTUDIANTS POUR UN EXAMEN
+--A VOIR SI GARDER CETTE FONCTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+--utiliser avant pour voir si un etudiant inscrit pour examen (function encoderHeureExamen)
 CREATE OR REPLACE FUNCTION projet.nombreInscrits (code_exam CHARACTER (6))RETURNS INTEGER AS $$
 DECLARE
 	variable_nombre_etudiants_inscrits INTEGER;
@@ -207,14 +204,15 @@ BEGIN
 	IF (id_bloc_ex IS NOT NULL) THEN 	
 		RETURN id_bloc_ex;	
 	ELSE
-		RAISE 'Cette examen existe pas !';
+		RAISE 'Examen % existe pas !',code_examen;
 	END IF;
 END;
 $$ LANGUAGE plpgsql;
 
 -- VERIFICATION SI A LA DATE DONNÉ, IL EXISTE DEJA UN EXAMEN POUR CE BLOC --
 -- Prend en paramètre une date (pas de l'heure) et un bloc
-CREATE OR REPLACE FUNCTION projet.examenMemeDateBlocExistant (la_date DATE, id_bloc_exam VARCHAR (10))RETURNS BOOLEAN AS $$
+--J'ai fait testé cette function le 20/11 normalement tout est bon 
+CREATE OR REPLACE FUNCTION projet.examenMemeDateBlocExistant (la_date DATE, id_bloc_exam INTEGER)RETURNS BOOLEAN AS $$
 DECLARE
 BEGIN
 	IF NOT EXISTS (SELECT * 
@@ -237,7 +235,7 @@ SELECT projet.insererExamen('IPL001', 'Examen', 150, true,'BIN1');
 SELECT projet.insererUtilisateur('mati.rydz@student.vinci.be','piwreq','dbgtppp','BIN1');
 INSERT INTO projet.examens VALUES ('IPL002','examen de java','150', true, null, false, 1);
 SELECT * FROM projet.examens;
---UPDATE projet.examens SET date_heure_debut = '2019-07-01 15:10:00' WHERE code_examen = 'IPL002';
+--UPDATE projet.examens SET date_heure_debut = '2019-07-01 15:10:00' WHERE code_examen = 'IPL001';
 SELECT * FROM projet.examens;
 SELECT projet.inscriptionExamen(1,'IPL002');
 SELECT * FROM projet.inscriptions_examen;
@@ -247,3 +245,24 @@ SELECT projet.nombreInscrits('IPL002');
 --SELECT * FROM projet.examens;SELECT projet.inscriptionExamen(1,'IPL002');
 SELECT projet.rechercheIdBloc('BIN1');
 SELECT projet.rechercheIdBloc('BIN2');
+
+--Test Function examenMemeDateBlocExistant :
+SELECT projet.insererExamen('IPL002','PHP Examen',150,true,'BIN1');
+INSERT INTO projet.blocs VALUES (default,'BIN2',10,4);
+SELECT projet.insererExamen('IPL103','WEB Examen',150,true,'BIN2');
+UPDATE projet.examens SET date_heure_debut = '25/10/2020 15:10:00' WHERE code_examen = 'IPL001';
+SELECT projet.examenMemeDateBlocExistant ('26/10/2020', 4); --TRUE
+UPDATE projet.examens SET date_heure_debut = '26/10/2020 15:10:00' WHERE code_examen = 'IPL103';
+SELECT projet.examenMemeDateBlocExistant ('26/10/2020',4);
+
+--Test function encoder heure debut
+SELECT projet.encoderHeureDebut('IPL002','25/10/2020 15:10:00');--erreur
+SELECT projet.encoderHeureDebut('IPL002','25/10/2020 16:10:00');--erreur
+SELECT projet.encoderHeureDebut('IPL002','26/10/2020 16:10:00');--valider
+
+SELECT projet.encoderHeureDebut('IPL002','25/10/2020 16:10:00');--erreur
+SELECT projet.encoderHeureDebut('IPL002','26/10/2020 16:10:00');--valider
+SELECT projet.encoderHeureDebut('IPL002','27/10/2020 16:10:00');--valider
+INSERT INTO projet.locaux VALUES (default,'A026',20,true);
+INSERT INTO projet.attributions_locaux VALUES(1,'IPL002');
+SELECT projet.encoderHeureDebut('IPL002','28/10/2020 17:10:00');--Error
