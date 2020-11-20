@@ -33,7 +33,7 @@ CREATE TABLE projet.examens (
 	id_bloc INTEGER REFERENCES projet.blocs (id_bloc) NOT NULL
 );
 
---PROBLEME PAS DE CLÉ PRIMAIRE
+--PROBLEME PAS DE CLÉ PRIMAIRE (A VERIFIER PAR CEZARY)
 --Changement fait le 19/11 :
 -- Rajout de la cle primaire
 
@@ -52,7 +52,7 @@ CREATE TABLE projet.locaux (
 );
 
 
---PROBLEME PAS DE CLÉ PRIMAIRE
+--PROBLEME PAS DE CLÉ PRIMAIRE (A VERIFIER PAR CEZARY)
 --Changement fait le 19/11 :
 -- Rajout de la cle primaire
 
@@ -65,7 +65,7 @@ CREATE TABLE projet.attributions_locaux(
 --APPLICATION CENTRALE--
 --====================--
 
---INSERTION LOCAL--
+--INSERTION LOCAL-- (A VERIFIER PAR CEZARY)
 
 CREATE OR REPLACE FUNCTION projet.ajouterLocal(nom_loc VARCHAR(4), nb_places INTEGER, machines BOOLEAN) RETURNS BOOLEAN AS $$
 DECLARE
@@ -75,7 +75,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---INSERTION EXAMEN--
+--INSERTION EXAMEN-- (A VERIFIER PAR CEZARY)
 
 CREATE OR REPLACE FUNCTION projet.insererExamen(code_exam CHARACTER(6), nom VARCHAR(50), duree INTEGER, sur_machine BOOLEAN, 
 											    cd_bloc VARCHAR (10)) RETURNS BOOLEAN AS $$
@@ -96,7 +96,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---ENCODER HEURE EXAMEN--
+--ENCODER HEURE EXAMEN-- (TODO : Conflits Horaire)
 CREATE OR REPLACE FUNCTION projet.encoderHeureDebut(code_exam CHARACTER(6), dateEtHeure TIMESTAMP) RETURNS BOOLEAN AS $$
 DECLARE
 	
@@ -128,7 +128,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
---RESERVER LOCAL
+--RESERVER LOCAL (TODO)
 
 CREATE OR REPLACE FUNCTION projet.reserverLocal (nom_local_a_reserv VARCHAR(4), code_exam CHARACTER(6))RETURNS BOOLEAN AS $$
 DECLARE
@@ -141,11 +141,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--+++++++++++++++++++++--
+--+++ VISUALISATION +++--
+-------------------------
+
+--Voir horaire examen pour un bloc particulier (TODO)
+CREATE OR REPLACE FUNCTION projet.voirHoraireBloc (cd_bloc varchar (10))RETURNS
+--Voir toutes les reservation pour un local particulier (TODO)
+--Voir tous les examens qui ne sont pas completements reservé (triee par code) (TODO)
+--Voir le nombre d'examens qui ne sont pas completements reservé pour chaque bloc (TODO)
+
+
+
+
 --=======================--
 --APPLICATION UTILISATEUR--
 --=======================--
 
---INSERTION UTILISATEUR--
+--INSERTION UTILISATEUR-- (A VERIFIER PAR CEZARY)
 
 CREATE OR REPLACE FUNCTION projet.insererUtilisateur (adresse_mail VARCHAR(50), nom VARCHAR(50), mot_de_passe VARCHAR(50), cd_bloc VARCHAR(10))RETURNS BOOLEAN AS $$
 DECLARE
@@ -163,7 +176,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---INSCRIPTION A UN EXAMEN--
+--INSCRIPTION A UN EXAMEN-- (A VERIFIER PAR CEZARY)
 
 CREATE OR REPLACE FUNCTION projet.inscriptionExamen (id_etud INTEGER, code_exam CHARACTER (6))RETURNS BOOLEAN AS $$
 DECLARE
@@ -179,6 +192,10 @@ BEGIN
 	RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
+
+--Visualiser les examens (TODO)
+--Inscrire a tous les examens de son bloc (TODO)
+--Voir son horaire examen (TODO)
 
 --======================--
 --   AUTRES FONCTIONS   --
