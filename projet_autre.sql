@@ -6,7 +6,7 @@ CREATE SCHEMA projet;
 --====================--
 
 CREATE TABLE projet.formations (
-	id_formations SERIAL PRIMARY KEY,
+	id_formation SERIAL PRIMARY KEY,
 	nom VARCHAR(100) NOT NULL CHECK (nom<>''),
 	ecole VARCHAR(100) NOT NULL CHECK (ecole<>'')
 );
@@ -14,7 +14,7 @@ CREATE TABLE projet.blocs (
 	id_bloc SERIAL PRIMARY KEY,
 	code_bloc VARCHAR(10) NOT NULL CHECK (code_bloc <> ''),
 	nb_examens_pas_complet INTEGER NOT NULL CHECK (nb_examens_pas_complet>0),
-	id_formation INTEGER REFERENCES projet.formations (id_formations) NOT NULL
+	id_formation INTEGER REFERENCES projet.formations (id_formation) NOT NULL
 );
 CREATE TABLE projet.etudiants (
 	id_etudiant SERIAL PRIMARY KEY,
@@ -146,7 +146,7 @@ $$ LANGUAGE plpgsql;
 -------------------------
 
 --Voir horaire examen pour un bloc particulier (TODO)
-CREATE OR REPLACE FUNCTION projet.voirHoraireBloc (cd_bloc varchar (10))RETURNS
+--CREATE OR REPLACE FUNCTION projet.voirHoraireBloc (cd_bloc varchar (10))RETURNS
 --Voir toutes les reservation pour un local particulier (TODO)
 --Voir tous les examens qui ne sont pas completements reservé (triee par code) (TODO)
 --Voir le nombre d'examens qui ne sont pas completements reservé pour chaque bloc (TODO)
